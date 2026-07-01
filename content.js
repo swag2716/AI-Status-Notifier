@@ -1,6 +1,5 @@
 (function () {
   var hostname = location.hostname;
-
   var PLATFORM_NAME = {
     "claude.ai": "Claude",
     "chat.openai.com": "ChatGPT",
@@ -9,7 +8,6 @@
     "www.perplexity.ai": "Perplexity",
     "copilot.microsoft.com": "Copilot"
   };
-
   var platform = PLATFORM_NAME[hostname];
   if (!platform) return;
 
@@ -58,8 +56,7 @@
     if (document.querySelector('[data-state="streaming"]')) return true;
     var formBtns = document.querySelectorAll("form button");
     for (var i = 0; i < formBtns.length; i++) {
-      var btn = formBtns[i];
-      if (btn.querySelector("rect") && isVisible(btn)) return true;
+      if (formBtns[i].querySelector("rect") && isVisible(formBtns[i])) return true;
     }
     return false;
   }
@@ -115,7 +112,8 @@
       lastTextTime = Date.now();
       return true;
     }
-    return (Date.now() - lastTextTime < STABLE_MS) && lastTextTime > 0;
+    if (lastTextTime > 0 && (Date.now() - lastTextTime) < STABLE_MS) return true;
+    return false;
   }
 
   function setState(newState) {
@@ -132,7 +130,6 @@
   function tick() {
     var textChanging = checkTextChanging();
     var thinking = isThinking() || textChanging;
-
     if (thinking) {
       clearTimeout(doneTimer);
       doneTimer = null;
@@ -153,15 +150,12 @@
   }
 
   setInterval(tick, 300);
-
   var observer = new MutationObserver(tick);
   observer.observe(document.body, { childList: true, subtree: true, characterData: true });
-
   chrome.runtime.onMessage.addListener(function (msg, _sender, sendResponse) {
     if (msg.type === "GET_STATE") {
       sendResponse({ state: currentState, platform: platform });
     }
   });
-
   tick();
 })();
