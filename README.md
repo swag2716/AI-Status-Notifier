@@ -112,7 +112,3 @@ ai-status-extension/
 ## Contributing
 
 Pull requests are welcome! If a platform's detection breaks after a UI update, the fix is usually a one-liner in the relevant `detect*` function inside `content.js`.
-
-## License
-
-MIT
